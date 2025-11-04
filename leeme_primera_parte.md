@@ -105,7 +105,7 @@ En el archivo base.html agregar bootstrap para css y js.
 
 En el archivo navbar.html incluir las opciones ( “Sistema de Administración In-N-Out”, “Inicio”, “Sucursal”,en submenu de Sucursal(Agregar Sucursal, Ver Sucursales, Actualizar Sucursal, Borrar Sucursal), “Trabajadores” en submenu de Trabajadores(Agregar Trabajador, Ver Trabajadores, Actualizar Trabajador, Borrar Trabajador), “Pedidos” en submenu de Pedidos(Agregar Pedido, Ver Pedidos, Actualizar Pedido, Borrar Pedido), incluir iconos a las opciones principales, no en los submenu.
 
-En el archivo footer.html incluir derechos de autor, fecha del sistema y “Creado por Ing. Eliseo Nava, Cbtis 128” y mantenerla fija al final de la página.
+En el archivo footer.html incluir derechos de autor, fecha del sistema y “Creado por Ing. Santiago Carrasco, Cbtis 128” y mantenerla fija al final de la página.
 
 En el archivo inicio.html se usa para colocar información del sistema más una imagen tomada desde la red sobre In-N-Out.
 
