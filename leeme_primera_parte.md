@@ -27,76 +27,75 @@ Aqui el modelo models.py
 Python
 
 from django.db import models
+import datetime
 
 # ==========================================
-# MODELO: TRABAJADOR
+# MODELO: SUCURSAL (7 campos + id)
+# ==========================================
+class Sucursal(models.Model):
+    nombre_tienda = models.CharField(max_length=100)
+    direccion = models.CharField(max_length=255, blank=True)
+    ciudad = models.CharField(max_length=100)
+    codigo_postal = models.CharField(max_length=10, blank=True)
+    telefono_tienda = models.CharField(max_length=20, blank=True)
+    fecha_apertura = models.DateField(null=True, blank=True)
+    es_drive_thru = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.nombre_tienda
+
+# ==========================================
+# MODELO: TRABAJADOR (7 campos + id)
 # ==========================================
 class Trabajador(models.Model):
-    # 7 campos (ID es automático)
+    # 6 campos de datos
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
-    puesto = models.CharField(max_length=50, help_text="Ej: Cajero, Cocinero")
+    puesto = models.CharField(max_length=50)
     fecha_contratacion = models.DateField()
     email = models.EmailField(unique=True)
-    telefono = models.CharField(max_length=20, blank=True, null=True)
-    activo = models.BooleanField(default=True)
+    telefono_personal = models.CharField(max_length=20, blank=True)
+
+    # --- CAMPO 7: Relación 1 (1:M) ---
+    # Una Sucursal (1) tiene muchos Trabajadores (M)
+    sucursal = models.ForeignKey(
+        Sucursal, 
+        on_delete=models.CASCADE, # Si se borra la sucursal, se van los empleados
+        related_name="trabajadores"
+    )
 
     def __str__(self):
         return f"{self.nombre} {self.apellido}"
 
 # ==========================================
-# MODELO: PRODUCTO
+# MODELO: PEDIDO (7 campos + id)
 # ==========================================
-class Producto(models.Model):
-    # 7 campos (ID es automático)
-    nombre_producto = models.CharField(max_length=100, unique=True)
-    descripcion = models.TextField(blank=True, null=True)
-    precio = models.DecimalField(max_digits=6, decimal_places=2)
-    categoria = models.CharField(max_length=50, help_text="Ej: Hamburguesa, Bebida")
-    disponible = models.BooleanField(default=True)
-    calorias = models.IntegerField(null=True, blank=True)
-    imagen_url = models.URLField(max_length=255, blank=True, null=True)
+class Pedido(models.Model):
+    # 6 campos de datos
+    fecha_pedido = models.DateTimeField(auto_now_add=True)
+    numero_orden = models.PositiveIntegerField()
+    total_pedido = models.DecimalField(max_digits=7, decimal_places=2)
+    tipo_orden = models.CharField(max_length=50, help_text="Comer ahi, Para llevar")
+    nombre_cliente_temporal = models.CharField(max_length=100, blank=True)
+    pagado = models.BooleanField(default=False)
 
-    def __str__(self):
-        return self.nombre_producto
-
-# ==========================================
-# MODELO: CLIENTE
-# ==========================================
-class Cliente(models.Model):
-    # 7 campos (ID automático + 5 campos de datos + 1 FK + 1 M2M)
-    nombre = models.CharField(max_length=100)
-    apellido = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    fecha_registro = models.DateField(auto_now_add=True)
-    telefono = models.CharField(max_length=20, blank=True, null=True)
-
-    # --- Relación 1:M ---
-    # Un Trabajador puede atender/registrar a muchos Clientes
-    trabajador_asignado = models.ForeignKey(
+    # --- CAMPO 7: Relación 2 (1:M) ---
+    # Un Trabajador (1) toma muchos Pedidos (M)
+    trabajador = models.ForeignKey(
         Trabajador, 
-        on_delete=models.SET_NULL, # Si se borra el trabajador, el cliente queda 'sin asignar'
-        related_name="clientes_atendidos",
-        null=True, 
-        blank=True
-    )
-
-    # --- Relación M:M ---
-    # Un Cliente puede tener muchos Productos favoritos
-    productos_favoritos = models.ManyToManyField(
-        Producto,
-        related_name="clientes_que_lo_prefieren",
-        blank=True # Un cliente puede no tener favoritos
+        on_delete=models.SET_NULL, # Si despiden al trabajador, el pedido queda
+        null=True,
+        blank=True,
+        related_name="pedidos"
     )
 
     def __str__(self):
-        return f"{self.nombre} {self.apellido}"
-
+        return f"Pedido #{self.numero_orden}"
 Procedimiento para realizar las migraciones (makemigrations y migrate).
 
-Primero trabajamos con el MODELO: PRODUCTO
+Primero trabajamos con el MODELO: SUCURSAL
 
-En views.py de app_in_n_out crear las funciones con sus códigos correspondientes (inicio_in_n_out, agregar_producto, actualizar_producto, realizar_actualizacion_producto, borrar_producto)
+En views.py de app_in_n_out crear las funciones con sus códigos correspondientes (inicio_in_n_out, agregar_sucursal, actualizar_sucursal, realizar_actualizacion_sucursal, borrar_sucursal)
 
 Crear la carpeta “templates” dentro de “app_in_n_out”.
 
@@ -104,19 +103,19 @@ En la carpeta templates crear los archivos html (base.html, header.html, navbar.
 
 En el archivo base.html agregar bootstrap para css y js.
 
-En el archivo navbar.html incluir las opciones ( “Sistema de Administración In-N-Out”, “Inicio”, “Producto”,en submenu de Producto(Agregar Producto, Ver Producto, Actualizar Producto, Borrar Producto), “Clientes” en submenu de Clientes(Agregar Cliente, Ver Clientes, Actualizar Cliente, Borrar Cliente), “Trabajadores” en submenu de Trabajadores(Agregar Trabajador, Ver Trabajador, Actualizar Trabajador, Borrar Trabajador), incluir iconos a las opciones principales, no en los submenu.
+En el archivo navbar.html incluir las opciones ( “Sistema de Administración In-N-Out”, “Inicio”, “Sucursal”,en submenu de Sucursal(Agregar Sucursal, Ver Sucursales, Actualizar Sucursal, Borrar Sucursal), “Trabajadores” en submenu de Trabajadores(Agregar Trabajador, Ver Trabajadores, Actualizar Trabajador, Borrar Trabajador), “Pedidos” en submenu de Pedidos(Agregar Pedido, Ver Pedidos, Actualizar Pedido, Borrar Pedido), incluir iconos a las opciones principales, no en los submenu.
 
 En el archivo footer.html incluir derechos de autor, fecha del sistema y “Creado por Ing. Eliseo Nava, Cbtis 128” y mantenerla fija al final de la página.
 
 En el archivo inicio.html se usa para colocar información del sistema más una imagen tomada desde la red sobre In-N-Out.
 
-Crear la subcarpeta producto dentro de app_in_n_out\templates.
+Crear la subcarpeta sucursal dentro de app_in_n_out\templates.
 
-Crear los archivos html con su codigo correspondientes de (agregar_producto.html, ver_productos.html mostrar en tabla con los botones ver, editar y borrar, actualizar_producto.html, borrar_producto.html) dentro de app_in_n_out\templates\producto.
+Crear los archivos html con su codigo correspondientes de (agregar_sucursal.html, ver_sucursales.html mostrar en tabla con los botones ver, editar y borrar, actualizar_sucursal.html, borrar_sucursal.html) dentro de app_in_n_out\templates\sucursal.
 
 No utilizar forms.py.
 
-Procedimiento para crear el archivo urls.py en app_in_n_out con el código correspondiente para acceder a las funciones de views.py para operaciones de crud en productos.
+Procedimiento para crear el archivo urls.py en app_in_n_out con el código correspondiente para acceder a las funciones de views.py para operaciones de crud en sucursales.
 
 Procedimiento para agregar app_in_n_out en settings.py de backend_in_n_out
 
@@ -124,7 +123,7 @@ Realizar las configuraciones correspondiente a urls.py de backend_in_n_out para 
 
 Procedimiento para registrar los modelos en admin.py y volver a realizar las migraciones.
 
-Por lo pronto solo trabajar con “Producto” dejar pendiente # MODELO: CLIENTE y # MODELO: TRABAJADOR
+Por lo pronto solo trabajar con “Sucursal” dejar pendiente # MODELO: TRABAJADOR y # MODELO: PEDIDO
 
 Utilizar colores suaves, atractivos y modernos, el código de las páginas web sencillas.
 
