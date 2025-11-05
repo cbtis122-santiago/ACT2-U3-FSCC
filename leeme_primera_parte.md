@@ -1,125 +1,112 @@
-# Guía paso a paso (Primera parte) — Proyecto In-N-Out (Django, Python, VS Code)
+Guía paso a paso (Primera parte) — Proyecto In-N-Out (Django, Python, VS Code)
 
-Autor: **Ing. Santiago Carrasco**
-Versión: UIII_In_N_Out_0421
-Puerto del servidor: **8421**
+Autor: Ing. Santiago Carrasco
+Voy a darte todo lo necesario: comandos, estructura de carpetas, archivos con código listo para copiar/pegar (models, views, urls, admin, templates) y las instrucciones para crear, activar y ejecutar el proyecto en el puerto 8421.
+Trabajo con la petición de no usar forms.py y de enfocarnos por ahora en SUCURSAL (las otras dos entidades quedan definidas pero su CRUD queda pendiente).
 
-Voy a darte todo lo necesario: comandos, estructura de carpetas, archivos con código listo para copiar/pegar (models, views, urls, admin, templates) y las instrucciones para crear, activar y ejecutar el proyecto.
-No se utiliza `forms.py` y nos enfocaremos **solo en el CRUD de Sucursal** (las otras dos entidades quedan definidas pero pendientes de CRUD).
-
----
-
-## 1 — Crear la carpeta del proyecto
+1 — Crear la carpeta del proyecto
 
 Abre tu terminal (PowerShell / CMD / Terminal) y ejecuta:
 
-```bash
+# desde la carpeta donde quieras crear el proyecto
 mkdir UIII_InNOut_0421
 cd UIII_InNOut_0421
-```
+2 — Abrir VS Code sobre la carpeta
 
----
+Si tienes code en PATH:
 
-## 2 — Abrir VS Code sobre la carpeta
-
-Si tienes VS Code en PATH:
-
-```bash
 code .
-```
 
-(Esto abre VS Code directamente en `UIII_InNOut_0421`).
+(esto abre VS Code en UIII_InNOut_0421).
 
----
+También puedes abrir VS Code y usar File → Open Folder... y seleccionar UIII_InNOut_0421.
 
-## 3 — Abrir terminal en VS Code
+3 — Abrir terminal en VS Code
 
-En VS Code:
-**Terminal → New Terminal** o usa **Ctrl + `**.
+En VS Code: menú Terminal → New Terminal (o Ctrl+ `) — te abre la terminal en la raíz del proyecto.
 
----
+4 — Crear carpeta/entorno virtual .venv desde la terminal de VS Code
 
-## 4 — Crear entorno virtual `.venv`
+(Comando multiplataforma — usa la versión python correcta)
 
-```bash
+# Windows / macOS / Linux (asegúrate que 'python' apunta a Python 3.x)
 python -m venv .venv
-```
 
----
+Esto crea la carpeta .venv dentro de UIII_InNOut_0421.
 
-## 5 — Activar el entorno virtual
-
-### Windows PowerShell
-
-```bash
+5 — Activar el entorno virtual
+Windows PowerShell
 .\.venv\Scripts\Activate.ps1
-```
 
-Si se bloquea por políticas, ejecuta:
+Si te bloquea por política (ExecutionPolicy), puedes ejecutar en PowerShell como administrador:
 
-```bash
 Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-```
 
-y vuelve a activar.
+y luego activar.
 
-### macOS / Linux
-
-```bash
+Windows CMD
+.\.venv\Scripts\activate
+macOS / Linux
 source .venv/bin/activate
-```
 
-Verás `(.venv)` al inicio de la línea.
+Cuando esté activo verás (.venv) al inicio de la línea de tu terminal.
 
----
+6 — Activar intérprete de Python en VS Code
 
-## 6 — Activar intérprete de Python en VS Code
+En VS Code: Ctrl+Shift+P → escribe Python: Select Interpreter.
+Selecciona la ruta al intérprete dentro de tu venv, p. ej. UIII_InNOut_0421\.venv\Scripts\python (Windows) o .venv/bin/python (mac/linux).
+Opcional: reinicia la ventana si pide recargar.
 
-En VS Code:
-**Ctrl+Shift+P → Python: Select Interpreter → elige `.venv`**.
+7 — Instalar Django
 
----
+Con venv activado:
 
-## 7 — Instalar Django
-
-```bash
 pip install --upgrade pip
 pip install django
-```
 
 Verifica:
 
-```bash
 python -m django --version
-```
+8 — Crear proyecto backend_InNOut SIN duplicar carpeta
 
----
+Para evitar que Django cree una carpeta extra backend_InNOut/backend_InNOut, utiliza el punto . al crear el proyecto dentro de la carpeta actual.
 
-## 8 — Crear proyecto backend_InNOut sin duplicar carpeta
+Desde UIII_InNOut_0421:
 
-Desde la raíz:
-
-```bash
 django-admin startproject backend_InNOut .
-```
 
-Esto creará `manage.py` y la carpeta `backend_InNOut/`.
+El . indica "crear el proyecto aquí" (no crear subcarpeta adicional).
+Ahora verás manage.py y el paquete backend_InNOut/.
 
----
+9 — Ejecutar servidor en el puerto 8421
 
-## 9 — Crear la aplicación principal
+Antes de ejecutar, crear app y migraciones. Pero para probar:
 
-```bash
+python manage.py runserver 8421
+
+Abre en el navegador:
+http://127.0.0.1:8421/ o http://localhost:8421/
+
+(Si VS Code te pide permisos de firewall acepta para localhost).
+
+10 — Copiar y pegar el link en el navegador
+
+Abre tu navegador y pega:
+http://127.0.0.1:8421/ (o http://localhost:8421/)
+
+11 — Crear aplicación app_InNOut
+
+Con venv activado y en la raíz del proyecto:
+
 python manage.py startapp app_InNOut
-```
 
----
+Esto crea la carpeta app_InNOut con sus archivos.
 
-## 10 — models.py
+12 — models.py
 
-Edita `app_InNOut/models.py` y pega lo siguiente:
+Copia/pega el siguiente contenido en app_InNOut/models.py.
+Incluye los tres modelos (Sucursal, Trabajador, Pedido) — trabajaremos CRUD sólo para Sucursal por ahora.
 
-```python
 from django.db import models
 
 # ==========================================
@@ -161,39 +148,41 @@ class Pedido(models.Model):
     fecha_pedido = models.DateTimeField(auto_now_add=True)
     numero_orden = models.PositiveIntegerField()
     total_pedido = models.DecimalField(max_digits=7, decimal_places=2)
-    tipo_orden = models.CharField(max_length=50, help_text="Comer aquí o Para llevar")
+    tipo_orden = models.CharField(max_length=50, help_text="Comer ahí o Para llevar")
     nombre_cliente_temporal = models.CharField(max_length=100, blank=True)
     pagado = models.BooleanField(default=False)
     trabajador = models.ForeignKey(Trabajador, on_delete=models.SET_NULL, null=True, blank=True, related_name="pedidos")
 
     def __str__(self):
         return f"Pedido #{self.numero_orden}"
-```
+12.5 — Procedimiento para realizar migraciones (makemigrations y migrate)
 
----
+Primero registra la app en settings (ver paso 25). Después:
 
-## 11 — Migraciones
-
-```bash
+# crear migraciones para app_InNOut
 python manage.py makemigrations app_InNOut
+
+# aplicar migraciones a la base de datos
 python manage.py migrate
-```
+13 — Primero trabajamos con el MODELO: SUCURSAL
 
----
+Las vistas, urls y templates que te doy a continuación enfocan CRUD en Sucursal únicamente.
+Trabajador y Pedido quedan en models.py para el futuro.
 
-## 12 — CRUD de Sucursal (views.py)
+14 — views.py de app_InNOut
 
-Edita `app_InNOut/views.py`:
+Reemplaza el contenido de app_InNOut/views.py por este (funcional, sin forms.py, sin validaciones):
 
-```python
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Sucursal
 
+# Página de inicio del sistema
 def inicio_in_n_out(request):
     total_sucursales = Sucursal.objects.count()
     sucursales = Sucursal.objects.all().order_by('-fecha_apertura')[:5]
     return render(request, 'inicio.html', {'total_sucursales': total_sucursales, 'sucursales': sucursales})
 
+# Mostrar formulario para agregar sucursal
 def agregar_sucursal(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre_tienda')
@@ -202,7 +191,7 @@ def agregar_sucursal(request):
         codigo_postal = request.POST.get('codigo_postal')
         telefono = request.POST.get('telefono_tienda')
         fecha = request.POST.get('fecha_apertura')
-        drive_thru = True if request.POST.get('es_drive_thru') == 'on' else False
+        es_drive_thru = True if request.POST.get('es_drive_thru') == 'on' else False
 
         Sucursal.objects.create(
             nombre_tienda=nombre,
@@ -211,19 +200,23 @@ def agregar_sucursal(request):
             codigo_postal=codigo_postal,
             telefono_tienda=telefono,
             fecha_apertura=fecha,
-            es_drive_thru=drive_thru
+            es_drive_thru=es_drive_thru
         )
         return redirect('ver_sucursales')
+
     return render(request, 'sucursal/agregar_sucursal.html')
 
+# Ver todas las sucursales
 def ver_sucursales(request):
-    sucursales = Sucursal.objects.all()
+    sucursales = Sucursal.objects.all().order_by('nombre_tienda')
     return render(request, 'sucursal/ver_sucursales.html', {'sucursales': sucursales})
 
+# Mostrar formulario con datos para actualizar
 def actualizar_sucursal(request, sucursal_id):
     sucursal = get_object_or_404(Sucursal, id=sucursal_id)
     return render(request, 'sucursal/actualizar_sucursal.html', {'sucursal': sucursal})
 
+# Procesar la actualización (POST)
 def realizar_actualizacion_sucursal(request, sucursal_id):
     sucursal = get_object_or_404(Sucursal, id=sucursal_id)
     if request.method == 'POST':
@@ -232,26 +225,60 @@ def realizar_actualizacion_sucursal(request, sucursal_id):
         sucursal.ciudad = request.POST.get('ciudad')
         sucursal.codigo_postal = request.POST.get('codigo_postal')
         sucursal.telefono_tienda = request.POST.get('telefono_tienda')
+        sucursal.fecha_apertura = request.POST.get('fecha_apertura')
         sucursal.es_drive_thru = True if request.POST.get('es_drive_thru') == 'on' else False
         sucursal.save()
         return redirect('ver_sucursales')
     return redirect('ver_sucursales')
 
+# Confirmación y borrado
 def borrar_sucursal(request, sucursal_id):
     sucursal = get_object_or_404(Sucursal, id=sucursal_id)
     if request.method == 'POST':
         sucursal.delete()
         return redirect('ver_sucursales')
     return render(request, 'sucursal/borrar_sucursal.html', {'sucursal': sucursal})
-```
+15 — Crear carpeta templates dentro de app_InNOut
 
----
+Ruta: app_InNOut/templates/
 
-## 13 — urls.py (app_InNOut)
+Dentro de ella habrá:
 
-Crea `app_InNOut/urls.py`:
+base.html
 
-```python
+header.html
+
+navbar.html
+
+footer.html
+
+inicio.html
+
+Subcarpeta sucursal/ con los html del CRUD.
+
+16 — Archivos HTML principales
+
+A continuación te doy plantillas simples y con Bootstrap CDN.
+
+(Las mismas del ejemplo original, adaptadas a In-N-Out y a tu nombre en el footer.)
+
+Crea app_InNOut/templates/footer.html:
+
+<footer class="fixed-footer text-center">
+  <div class="container">
+    <small>
+      &copy; {% now "Y" %} In-N-Out — Todos los derechos reservados.
+      &nbsp;|&nbsp; Creado por Ing. Santiago Carrasco
+    </small>
+  </div>
+</footer>
+
+(Los demás archivos siguen el mismo formato que el ejemplo de Cinepolis, cambiando los nombres de entidad y texto.)
+
+24 — urls.py en app_InNOut
+
+Crea app_InNOut/urls.py con este contenido:
+
 from django.urls import path
 from . import views
 
@@ -263,39 +290,44 @@ urlpatterns = [
     path('sucursal/actualizar/realizar/<int:sucursal_id>/', views.realizar_actualizacion_sucursal, name='realizar_actualizacion_sucursal'),
     path('sucursal/borrar/<int:sucursal_id>/', views.borrar_sucursal, name='borrar_sucursal'),
 ]
-```
+25 — Agregar app_InNOut en settings.py de backend_InNOut
 
----
+Edita backend_InNOut/settings.py, en INSTALLED_APPS añade 'app_InNOut', por ejemplo:
 
-## 14 — Configurar backend_InNOut/urls.py
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
 
-Edita `backend_InNOut/urls.py`:
+    # apps locales
+    'app_InNOut',
+]
+26 — Configurar urls.py de backend_InNOut para enlazar con app_InNOut
 
-```python
+Edita backend_InNOut/urls.py:
+
 from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('app_InNOut.urls')),
+    path('', include('app_InNOut.urls')),  # rutas principales de la app
 ]
-```
+27 — Registrar modelos en admin.py y volver a migrar/crear superuser
 
----
+En app_InNOut/admin.py:
 
-## 15 — Registrar app y modelos en admin.py
-
-En `backend_InNOut/settings.py`, agrega `'app_InNOut'` en `INSTALLED_APPS`.
-
-En `app_InNOut/admin.py`:
-
-```python
 from django.contrib import admin
 from .models import Sucursal, Trabajador, Pedido
 
 @admin.register(Sucursal)
 class SucursalAdmin(admin.ModelAdmin):
     list_display = ('nombre_tienda', 'ciudad', 'telefono_tienda', 'es_drive_thru', 'fecha_apertura')
+    search_fields = ('nombre_tienda', 'ciudad')
+    list_filter = ('es_drive_thru',)
 
 @admin.register(Trabajador)
 class TrabajadorAdmin(admin.ModelAdmin):
@@ -303,41 +335,89 @@ class TrabajadorAdmin(admin.ModelAdmin):
 
 @admin.register(Pedido)
 class PedidoAdmin(admin.ModelAdmin):
-    list_display = ('numero_orden', 'total_pedido', 'pagado', 'fecha_pedido')
-```
+    list_display = ('numero_orden', 'total_pedido', 'tipo_orden', 'pagado', 'fecha_pedido')
 
----
+Luego:
 
-## 16 — Crear estructura templates
+# crear migraciones (si aún no lo hiciste después de añadir app y models)
+python manage.py makemigrations
+python manage.py migrate
 
-Ruta: `app_InNOut/templates/`
-Archivos:
+# crear superusuario para admin
+python manage.py createsuperuser
+27 (segunda aparición) — Por ahora solo trabajar con “Sucursal”
 
-* `base.html`
-* `navbar.html`
-* `footer.html`
-* `inicio.html`
-* Subcarpeta `sucursal/` con los HTML para CRUD.
+Las vistas, urls y templates anteriores se centran sólo en administrar Sucursal.
+Trabajador y Pedido están en models.py pero no tienen vistas ni templates (pendiente).
 
-*(Puedes usar el mismo estilo Bootstrap del ejemplo de Cinepolis).*
+28 — Estética: colores suaves y modernos
 
----
+Las plantillas usan Bootstrap, sombras suaves (card-soft) y tipografía predeterminada de Bootstrap para mantener diseño limpio y moderno.
+Puedes personalizar style en base.html.
 
-## 17 — Ejecutar servidor
+29 — Estructura completa inicial de carpetas y archivos
 
-```bash
+Ejemplo de árbol principal (después de aplicar lo anterior):
+
+UIII_InNOut_0421/
+├─ .venv/
+├─ manage.py
+├─ backend_InNOut/
+│  ├─ __init__.py
+│  ├─ settings.py
+│  ├─ urls.py
+│  └─ wsgi.py
+├─ app_InNOut/
+│  ├─ migrations/
+│  ├─ templates/
+│  │  ├─ base.html
+│  │  ├─ navbar.html
+│  │  ├─ footer.html
+│  │  ├─ inicio.html
+│  │  └─ sucursal/
+│  │     ├─ agregar_sucursal.html
+│  │     ├─ ver_sucursales.html
+│  │     ├─ actualizar_sucursal.html
+│  │     └─ borrar_sucursal.html
+│  ├─ __init__.py
+│  ├─ admin.py
+│  ├─ apps.py
+│  ├─ models.py
+│  ├─ tests.py
+│  ├─ urls.py
+│  └─ views.py
+30 — Proyecto totalmente funcional (pasos finales)
+
+Asegúrate que app_InNOut está en INSTALLED_APPS.
+
+Ejecuta migraciones:
+
+python manage.py makemigrations
+python manage.py migrate
+
+Crea superusuario (opcional para admin):
+
+python manage.py createsuperuser
+
+Ejecuta servidor en puerto 8421:
+
 python manage.py runserver 8421
-```
 
-Abre:
-**[http://127.0.0.1:8421/](http://127.0.0.1:8421/)**
+Abre en navegador: http://127.0.0.1:8421/ — deberías ver la página de inicio.
 
----
+Accede a Sucursal → Ver/Agregar/Editar/Borrar desde la barra de navegación.
 
-## 18 — Próximos pasos
+31 — Finalmente ejecutar servidor en el puerto 8421
 
-* Subir este contenido como `leeme_primera_parte.md` a tu repositorio en GitHub.
-* Adjuntar la imagen del modelo relacional (recortada desde DBDesigner) al `README.md`.
-* Subir el PDF de tu prompt al mismo repositorio.
-* Realizar commit con mensaje:
-  `"Primera parte del proyecto In-N-Out — CRUD Sucursal completado"`.
+(Ya incluido arriba; repito el comando final)
+
+python manage.py runserver 8421
+Notas rápidas, recomendaciones y consideraciones
+
+No validé entradas (según tu instrucción).
+
+Si en el futuro quieres validación, podemos añadir forms.py o validaciones en views.
+
+Puedes configurar STATIC_URL y STATICFILES_DIRS para CSS e imágenes personalizadas.
+
+Si deseas, se puede generar el diagrama ERD en .drawio o imagen para README.md.
